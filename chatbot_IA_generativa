@@ -1,0 +1,473 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNLcEtkEpl7hQK/NpWp9hDE",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/engsergioleite/Python/blob/main/chatbot_IA_generativa\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 7,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "mKV1HE6h1Z8M",
+        "outputId": "d2dcbad9-36a3-4f0c-eb13-377b849229f1"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: google-genai in /usr/local/lib/python3.11/dist-packages (1.15.0)\n",
+            "Requirement already satisfied: anyio<5.0.0,>=4.8.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (4.9.0)\n",
+            "Requirement already satisfied: google-auth<3.0.0,>=2.14.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.38.0)\n",
+            "Requirement already satisfied: httpx<1.0.0,>=0.28.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (0.28.1)\n",
+            "Requirement already satisfied: pydantic<3.0.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.11.4)\n",
+            "Requirement already satisfied: requests<3.0.0,>=2.28.1 in /usr/local/lib/python3.11/dist-packages (from google-genai) (2.32.3)\n",
+            "Requirement already satisfied: websockets<15.1.0,>=13.0.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (15.0.1)\n",
+            "Requirement already satisfied: typing-extensions<5.0.0,>=4.11.0 in /usr/local/lib/python3.11/dist-packages (from google-genai) (4.13.2)\n",
+            "Requirement already satisfied: idna>=2.8 in /usr/local/lib/python3.11/dist-packages (from anyio<5.0.0,>=4.8.0->google-genai) (3.10)\n",
+            "Requirement already satisfied: sniffio>=1.1 in /usr/local/lib/python3.11/dist-packages (from anyio<5.0.0,>=4.8.0->google-genai) (1.3.1)\n",
+            "Requirement already satisfied: cachetools<6.0,>=2.0.0 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (5.5.2)\n",
+            "Requirement already satisfied: pyasn1-modules>=0.2.1 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (0.4.2)\n",
+            "Requirement already satisfied: rsa<5,>=3.1.4 in /usr/local/lib/python3.11/dist-packages (from google-auth<3.0.0,>=2.14.1->google-genai) (4.9.1)\n",
+            "Requirement already satisfied: certifi in /usr/local/lib/python3.11/dist-packages (from httpx<1.0.0,>=0.28.1->google-genai) (2025.4.26)\n",
+            "Requirement already satisfied: httpcore==1.* in /usr/local/lib/python3.11/dist-packages (from httpx<1.0.0,>=0.28.1->google-genai) (1.0.9)\n",
+            "Requirement already satisfied: h11>=0.16 in /usr/local/lib/python3.11/dist-packages (from httpcore==1.*->httpx<1.0.0,>=0.28.1->google-genai) (0.16.0)\n",
+            "Requirement already satisfied: annotated-types>=0.6.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (0.7.0)\n",
+            "Requirement already satisfied: pydantic-core==2.33.2 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (2.33.2)\n",
+            "Requirement already satisfied: typing-inspection>=0.4.0 in /usr/local/lib/python3.11/dist-packages (from pydantic<3.0.0,>=2.0.0->google-genai) (0.4.0)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.28.1->google-genai) (3.4.2)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.11/dist-packages (from requests<3.0.0,>=2.28.1->google-genai) (2.4.0)\n",
+            "Requirement already satisfied: pyasn1<0.7.0,>=0.6.1 in /usr/local/lib/python3.11/dist-packages (from pyasn1-modules>=0.2.1->google-auth<3.0.0,>=2.14.1->google-genai) (0.6.1)\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install google-genai"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "from google.colab import userdata\n",
+        "os.environ['GOOGLE_API_KEY'] =  userdata.get('GOOGLE_API_KEY')"
+      ],
+      "metadata": {
+        "id": "FoyWqT5h5Xpi"
+      },
+      "execution_count": 8,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google import genai\n",
+        "client = genai.Client()\n"
+      ],
+      "metadata": {
+        "id": "i4EqVG9jlHAP"
+      },
+      "execution_count": 9,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "for model in client.models.list():\n",
+        "  print (model.name)\n",
+        ""
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ZUZKc5k2v0JS",
+        "outputId": "a983e23d-237b-46ee-fd3d-c0eea9ee0807"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "models/embedding-gecko-001\n",
+            "models/gemini-1.0-pro-vision-latest\n",
+            "models/gemini-pro-vision\n",
+            "models/gemini-1.5-pro-latest\n",
+            "models/gemini-1.5-pro-001\n",
+            "models/gemini-1.5-pro-002\n",
+            "models/gemini-1.5-pro\n",
+            "models/gemini-1.5-flash-latest\n",
+            "models/gemini-1.5-flash-001\n",
+            "models/gemini-1.5-flash-001-tuning\n",
+            "models/gemini-1.5-flash\n",
+            "models/gemini-1.5-flash-002\n",
+            "models/gemini-1.5-flash-8b\n",
+            "models/gemini-1.5-flash-8b-001\n",
+            "models/gemini-1.5-flash-8b-latest\n",
+            "models/gemini-1.5-flash-8b-exp-0827\n",
+            "models/gemini-1.5-flash-8b-exp-0924\n",
+            "models/gemini-2.5-pro-exp-03-25\n",
+            "models/gemini-2.5-pro-preview-03-25\n",
+            "models/gemini-2.5-flash-preview-04-17\n",
+            "models/gemini-2.5-flash-preview-04-17-thinking\n",
+            "models/gemini-2.5-pro-preview-05-06\n",
+            "models/gemini-2.0-flash-exp\n",
+            "models/gemini-2.0-flash\n",
+            "models/gemini-2.0-flash-001\n",
+            "models/gemini-2.0-flash-exp-image-generation\n",
+            "models/gemini-2.0-flash-lite-001\n",
+            "models/gemini-2.0-flash-lite\n",
+            "models/gemini-2.0-flash-preview-image-generation\n",
+            "models/gemini-2.0-flash-lite-preview-02-05\n",
+            "models/gemini-2.0-flash-lite-preview\n",
+            "models/gemini-2.0-pro-exp\n",
+            "models/gemini-2.0-pro-exp-02-05\n",
+            "models/gemini-exp-1206\n",
+            "models/gemini-2.0-flash-thinking-exp-01-21\n",
+            "models/gemini-2.0-flash-thinking-exp\n",
+            "models/gemini-2.0-flash-thinking-exp-1219\n",
+            "models/learnlm-2.0-flash-experimental\n",
+            "models/gemma-3-1b-it\n",
+            "models/gemma-3-4b-it\n",
+            "models/gemma-3-12b-it\n",
+            "models/gemma-3-27b-it\n",
+            "models/embedding-001\n",
+            "models/text-embedding-004\n",
+            "models/gemini-embedding-exp-03-07\n",
+            "models/gemini-embedding-exp\n",
+            "models/aqa\n",
+            "models/imagen-3.0-generate-002\n",
+            "models/gemini-2.0-flash-live-001\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "model = \"gemini-2.0-flash\""
+      ],
+      "metadata": {
+        "id": "_2e0CGyvwX1J"
+      },
+      "execution_count": 11,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = client.models.generate_content(model=model, contents=\"quem criou a IA\")"
+      ],
+      "metadata": {
+        "id": "P7ME2CT_wwt7"
+      },
+      "execution_count": 12,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta.text"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 209
+        },
+        "id": "O0hPSLlBzgtF",
+        "outputId": "4577036f-3c4d-4bf0-b955-4cb305ae7c26"
+      },
+      "execution_count": 13,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'A Inteligência Artificial (IA) não foi criada por uma única pessoa. É um campo multidisciplinar que evoluiu ao longo de décadas, com contribuições de muitos pesquisadores e cientistas. No entanto, algumas figuras são consideradas pioneiras e tiveram papéis cruciais no desenvolvimento inicial da IA:\\n\\n*   **Alan Turing:** Matemático inglês que propôs o \"Teste de Turing\" como um critério para determinar se uma máquina pode pensar. Seu trabalho influenciou profundamente a área da IA.\\n\\n*   **John McCarthy:** Cientista da computação americano que cunhou o termo \"Inteligência Artificial\" em 1955 e organizou a Conferência de Dartmouth, que é amplamente considerada como o evento que deu início formal ao campo da IA como o conhecemos.\\n\\n*   **Marvin Minsky:** Cientista da computação americano que fez contribuições significativas para a IA, incluindo o trabalho em redes neurais e robótica.\\n\\n*   **Claude Shannon:** Matemático e engenheiro americano conhecido por suas contribuições para a teoria da informação. Seu trabalho influenciou a IA, especialmente no campo do processamento de linguagem natural.\\n\\nÉ importante ressaltar que a IA continua a evoluir, com avanços significativos sendo feitos por pesquisadores e empresas em todo o mundo.'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat = client.chats.create(model=model)\n",
+        "resposta = chat.send_message(\"quem criou a IA?\")\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 209
+        },
+        "collapsed": true,
+        "id": "FuNvgjAy_IdL",
+        "outputId": "bc310785-0434-487a-f736-7a7f71c89a68"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'A Inteligência Artificial (IA) não foi criada por uma única pessoa. É um campo de estudo e desenvolvimento que envolveu e continua a envolver contribuições de inúmeros cientistas, matemáticos, engenheiros e pesquisadores ao longo de décadas.\\n\\nNo entanto, alguns nomes são considerados pioneiros e fundamentais para o desenvolvimento da IA:\\n\\n*   **Alan Turing:** Matemático e cientista da computação britânico, considerado um dos pais da IA. Propôs o \"Teste de Turing\" como critério para avaliar a inteligência de uma máquina.\\n*   **John McCarthy:** Cientista da computação americano que cunhou o termo \"Inteligência Artificial\" em 1956 e organizou a Conferência de Dartmouth, considerada o marco inicial da IA como campo de estudo.\\n*   **Marvin Minsky:** Cientista da computação americano que fez importantes contribuições para a área de IA, especialmente em áreas como redes neurais e robótica.\\n*   **Claude Shannon:** Matemático e engenheiro americano, conhecido por suas contribuições para a teoria da informação, que influenciou o desenvolvimento da IA.\\n\\nÉ importante ressaltar que a IA moderna é resultado de um esforço colaborativo contínuo, com avanços significativos impulsionados por pesquisadores e empresas em todo o mundo.'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = chat.send_message(\"Você é um assistente virtual que deve responde de forma sucinta. qual a capital do brasil?\")\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "collapsed": true,
+        "id": "zGB02RbS_Vsx",
+        "outputId": "c0c6fa39-bdfc-4607-dce2-59827de43492"
+      },
+      "execution_count": 15,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Brasília.\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "resposta = chat.send_message(\"Você é um assistente virtual que deve responde de forma sucinta. quem criou a IA?\")\n",
+        "resposta.text"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 35
+        },
+        "id": "xiSYg8EwBirL",
+        "outputId": "c972880e-a329-433b-f257-301dec1d3ac1"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Não foi uma pessoa só. Vários pioneiros contribuíram, como Alan Turing e John McCarthy.\\n'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 16
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from google.genai import types\n",
+        "\n",
+        "chat_config = types.GenerateContentConfig(\n",
+        "    system_instruction = \"Você é um assistente virtual que deve responde de forma sucinta.\",\n",
+        ")\n",
+        "\n",
+        "mensagem = input(\"Digite sua mensagem: \")\n",
+        "chat = client.chats.create(model=model, config=chat_config)\n",
+        "resposta = chat.send_message(mensagem)\n",
+        "resposta.text\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 53
+        },
+        "id": "eR030JaLnyDX",
+        "outputId": "3e92a893-c463-4633-f362-36fe8370ecc6"
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Digite sua mensagem: qual o melhor time do Pará?\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "'Paysandu.'"
+            ],
+            "application/vnd.google.colaboratory.intrinsic+json": {
+              "type": "string"
+            }
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat.get_history()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1pOKT-mjtC0F",
+        "outputId": "59f3a84d-b5fb-4d76-ea8d-c9c3f2c3f8e4"
+      },
+      "execution_count": 28,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[UserContent(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='qual o melhor time do Pará?')], role='user'),\n",
+              " Content(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='Paysandu.')], role='model')]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 28
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "prompt = input(\"Digite sua mensagem: \")\n",
+        "while prompt != \"sair\":\n",
+        "  chat = client.chats.create(model=model, config=chat_config)\n",
+        "  resposta = chat.send_message(prompt)\n",
+        "  print(resposta.text)\n",
+        "  print(\"\\n\")\n",
+        "  prompt = input(\"Digite sua mensagem: \")\n",
+        ""
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "IuC6HhafBpyA",
+        "outputId": "93f20eb5-e8f7-4445-c2af-15978aa18a18"
+      },
+      "execution_count": 37,
+      "outputs": [
+        {
+          "name": "stdout",
+          "output_type": "stream",
+          "text": [
+            "Digite sua mensagem: qual foi a terceira pergunta que eu fiz?\n",
+            "Você não fez uma terceira pergunta nesta conversa. Esta é a sua segunda pergunta.\n",
+            "\n",
+            "\n",
+            "\n",
+            "Digite sua mensagem: fim\n",
+            "Até mais!\n",
+            "\n",
+            "\n",
+            "Digite sua mensagem: sir\n",
+            "Como posso ajudar?\n",
+            "\n",
+            "\n",
+            "\n",
+            "Digite sua mensagem: sair\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "chat.get_history()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1p6z0hJF9P48",
+        "outputId": "8b5426b8-e79b-46cb-8f95-485d02d7e9ea"
+      },
+      "execution_count": 38,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[UserContent(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='sir')], role='user'),\n",
+              " Content(parts=[Part(video_metadata=None, thought=None, inline_data=None, code_execution_result=None, executable_code=None, file_data=None, function_call=None, function_response=None, text='Como posso ajudar?\\n')], role='model')]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 38
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "metadata": {
+        "id": "cMgSJcqCnbIa"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
